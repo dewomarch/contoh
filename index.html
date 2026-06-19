@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio — Modern Creative</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts (opsional) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ========== CSS Custom Properties ========== */
+    :root {
+      --bg-primary: #0f0f13;
+      --bg-secondary: #1a1a24;
+      --bg-card: #1e1e2e;
+      --text-primary: #f1f1f5;
+      --text-secondary: #a0a0b8;
+      --accent: #7c6af7;
+      --accent-hover: #6b58f0;
+      --border: rgba(255, 255, 255, 0.08);
+      --spotlight-x: 50%;
+      --spotlight-y: 50%;
+      --navbar-bg: rgba(15, 15, 19, 0.0);
+      --font-sans: 'Inter', sans-serif;
+      --font-display: 'Space Grotesk', sans-serif;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f5fa;
+      --bg-card: #ffffff;
+      --text-primary: #0f0f13;
+      --text-secondary: #555570;
+      --accent: #5b4de0;
+      --accent-hover: #4a3dc9;
+      --border: rgba(0, 0, 0, 0.08);
+      --navbar-bg: rgba(255, 255, 255, 0.0);
+    }
+
+    /* ========== Base ========== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      transition: background-color 0.3s ease, color 0.3s ease;
+      overflow-x: hidden;
+    }
+
+    /* ========== Spotlight Overlay ========== */
+    #spotlight-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+      opacity: 0;
+      background: radial-gradient(
+        600px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
+        rgba(255, 255, 255, 0.07),
+        transparent 80%
+      );
+      transition: opacity 0.3s ease;
+    }
+
+    /* ========== Navbar ========== */
+    header {
+      background: var(--navbar-bg);
+      backdrop-filter: blur(0px);
+      transition: background 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    header.scrolled {
+      background: rgba(15, 15, 19, 0.85);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 1px 0 var(--border);
+    }
+
+    [data-theme="light"] header.scrolled {
+      background: rgba(255, 255, 255, 0.85);
+    }
+
+    /* ========== Keyframe Animations ========== */
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-in {
+      animation: fade-in 0.8s ease forwards;
+    }
+
+    .animate-slide-up {
+      animation: slide-up 0.8s ease forwards;
+    }
+
+    .animation-delay-200 { animation-delay: 0.2s; opacity: 0; }
+    .animation-delay-400 { animation-delay: 0.4s; opacity: 0; }
+    .animation-delay-600 { animation-delay: 0.6s; opacity: 0; }
+
+    /* ========== Scroll-top button ========== */
+    #scroll-top-btn {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 50;
+      display: none;
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(124, 106, 247, 0.4);
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    #scroll-top-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+    }
+
+    #scroll-top-btn.visible {
+      display: flex;
+    }
+
+    /* ========== Portfolio overlay ========== */
+    .portfolio-overlay {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .portfolio-item:hover .portfolio-overlay {
+      opacity: 1;
+    }
+
+    /* ========== Feature card ========== */
+    .feature-card {
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    /* ========== Testimonial carousel ========== */
+    .testimonial-track {
+      display: flex;
+      transition: transform 0.4s ease;
+    }
+
+    .testimonial-slide {
+      flex: 0 0 100%;
+    }
+
+    /* ========== Toast ========== */
+    #toast-container {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .toast {
+      padding: 0.75rem 1.25rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #fff;
+      opacity: 0;
+      transform: translateX(40px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .toast.success { background: #22c55e; }
+    .toast.error   { background: #ef4444; }
+    .toast.info    { background: #3b82f6; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- Spotlight Overlay -->
+  <div id="spotlight-overlay" aria-hidden="true"></div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- ===================== NAVBAR ===================== -->
+  <header class="fixed top-0 left-0 right-0 z-40">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+
+      <!-- Brand -->
+      <a href="#hero" class="font-display font-bold text-xl tracking-tight" style="font-family: var(--font-display); color: var(--text-primary);">
+        Creative<span style="color: var(--accent);">.</span>
+      </a>
+
+      <!-- Desktop nav links -->
+      <ul class="hidden md:flex items-center gap-6 text-sm font-medium" style="color: var(--text-secondary);">
+        <li><a href="#about"         data-scroll-to="#about"         class="hover:opacity-100 transition-opacity" style="opacity:0.75;">About</a></li>
+        <li><a href="#features"      data-scroll-to="#features"      class="hover:opacity-100 transition-opacity" style="opacity:0.75;">Features</a></li>
+        <li><a href="#portfolio"     data-scroll-to="#portfolio"     class="hover:opacity-100 transition-opacity" style="opacity:0.75;">Portfolio</a></li>
+        <li><a href="#testimonials"  data-scroll-to="#testimonials"  class="hover:opacity-100 transition-opacity" style="opacity:0.75;">Testimonials</a></li>
+        <li><a href="#contact"       data-scroll-to="#contact"       class="hover:opacity-100 transition-opacity" style="opacity:0.75;">Contact</a></li>
+      </ul>
+
+      <!-- Right controls -->
+      <div class="flex items-center gap-3">
+        <!-- Theme Toggle -->
+        <button id="theme-toggle" aria-label="Toggle color theme"
+          class="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
+          style="background: var(--border); color: var(--text-primary);">
+          <!-- Sun icon (shown in dark mode) -->
+          <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <!-- Moon icon (shown in light mode) -->
+          <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+
+        <!-- Hamburger (mobile) -->
+        <button id="hamburger-btn" aria-label="Toggle mobile menu" aria-expanded="false"
+          class="md:hidden w-9 h-9 flex flex-col items-center justify-center gap-1.5"
+          style="color: var(--text-primary);">
+          <span id="ham-line-1" class="block w-5 h-0.5 bg-current transition-all duration-300"></span>
+          <span id="ham-line-2" class="block w-5 h-0.5 bg-current transition-all duration-300"></span>
+          <span id="ham-line-3" class="block w-5 h-0.5 bg-current transition-all duration-300"></span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="md:hidden hidden px-4 pb-4 pt-2" style="background: var(--bg-secondary);">
+      <ul class="flex flex-col gap-3 text-sm font-medium" style="color: var(--text-secondary);">
+        <li><a href="#about"        data-scroll-to="#about"        class="block py-1">About</a></li>
+        <li><a href="#features"     data-scroll-to="#features"     class="block py-1">Features</a></li>
+        <li><a href="#portfolio"    data-scroll-to="#portfolio"    class="block py-1">Portfolio</a></li>
+        <li><a href="#testimonials" data-scroll-to="#testimonials" class="block py-1">Testimonials</a></li>
+        <li><a href="#contact"      data-scroll-to="#contact"      class="block py-1">Contact</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- ===================== MAIN ===================== -->
+  <main>
+
+    <!-- ===== HERO ===== -->
+    <section id="hero" class="relative min-h-screen flex items-center justify-center text-center px-4 pt-16"
+      style="background: var(--bg-primary);">
+      <div class="max-w-3xl mx-auto">
+        <p class="text-sm font-semibold uppercase tracking-widest mb-4 animate-fade-in" style="color: var(--accent);">
+          Hello, World
+        </p>
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6 animate-slide-up animation-delay-200"
+          style="font-family: var(--font-display); color: var(--text-primary);">
+          Crafting Digital<br /><span style="color: var(--accent);">Experiences</span> That Matter
+        </h1>
+        <p class="text-lg mb-10 max-w-xl mx-auto animate-slide-up animation-delay-400" style="color: var(--text-secondary);">
+          Saya membangun website modern, interaktif, dan performant — tanpa framework yang berlebihan.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up animation-delay-600">
+          <a href="#about" data-scroll-to="#about"
+            class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold text-white transition-colors"
+            style="background: var(--accent);">
+            Jelajahi Karya Saya
+            <svg class="ml-2 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </a>
+          <a href="#contact" data-scroll-to="#contact"
+            class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold transition-colors"
+            style="border: 1px solid var(--border); color: var(--text-primary);">
+            Hubungi Saya
+          </a>
+        </div>
+      </div>
+
+      <!-- Scroll indicator -->
+      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce" style="color: var(--text-secondary);">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+    </section>
+
+    <!-- ===== ABOUT ===== -->
+    <section id="about" class="py-24 px-4" style="background: var(--bg-secondary);">
+      <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+          <!-- Text -->
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-widest mb-3" style="color: var(--accent);">About Me</p>
+            <h2 class="text-3xl sm:text-4xl font-bold mb-6" style="font-family: var(--font-display); color: var(--text-primary);">
+              Passionate Developer &amp; Designer
+            </h2>
+            <p class="mb-4 leading-relaxed" style="color: var(--text-secondary);">
+              Saya adalah web developer dengan pengalaman membangun produk digital yang berfokus pada performa,
+              aksesibilitas, dan pengalaman pengguna yang menyenangkan. Saya percaya bahwa kode yang baik adalah
+              kode yang bisa dipahami semua orang.
+            </p>
+            <p class="leading-relaxed" style="color: var(--text-secondary);">
+              Dengan pendekatan zero-dependency, saya menunjukkan bahwa website modern tidak selalu membutuhkan
+              tumpukan teknologi yang rumit.
+            </p>
+          </div>
+
+          <!-- Stats -->
+          <div class="grid grid-cols-3 gap-6">
+            <div class="text-center p-6 rounded-2xl" style="background: var(--bg-card); border: 1px solid var(--border);">
+              <p class="text-4xl font-bold mb-1" style="font-family: var(--font-display); color: var(--accent);">
+                <span class="stat-counter" data-target="120">0</span>+
+              </p>
+              <p class="text-sm" style="color: var(--text-secondary);">Proyek Selesai</p>
+            </div>
+            <div class="text-center p-6 rounded-2xl" style="background: var(--bg-card); border: 1px solid var(--border);">
+              <p class="text-4xl font-bold mb-1" style="font-family: var(--font-display); color: var(--accent);">
+                <span class="stat-counter" data-target="85">0</span>+
+              </p>
+              <p class="text-sm" style="color: var(--text-secondary);">Klien Puas</p>
+            </div>
+            <div class="text-center p-6 rounded-2xl" style="background: var(--bg-card); border: 1px solid var(--border);">
+              <p class="text-4xl font-bold mb-1" style="font-family: var(--font-display); color: var(--accent);">
+                <span class="stat-counter" data-target="5">0</span>+
+              </p>
+              <p class="text-sm" style="color: var(--text-secondary);">Tahun Pengalaman</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FEATURES ===== -->
+    <section id="features" class="py-24 px-4" style="background: var(--bg-primary);">
+      <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-16">
+          <p class="text-sm font-semibold uppercase tracking-widest mb-3" style="color: var(--accent);">What I Offer</p>
+          <h2 class="text-3xl sm:text-4xl font-bold" style="font-family: var(--font-display); color: var(--text-primary);">
+            Layanan &amp; Keahlian
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+          <!-- Card 1 -->
+          <div class="feature-card transition p-6 rounded-2xl cursor-default" style="background: var(--bg-card); border: 1px solid var(--border);">
+            <div class="text-3xl mb-4" role="img" aria-label="Web icon">🌐</div>
+            <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">Web Development</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--text-secondary);">
+              Membangun website responsif dan performant menggunakan teknologi modern. Setiap baris kode ditulis dengan standar terbaik.
+            </p>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="feature-card transition p-6 rounded-2xl cursor-default" style="background: var(--bg-card); border: 1px solid var(--border);">
+            <div class="text-3xl mb-4" role="img" aria-label="Design icon">🎨</div>
+            <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">UI/UX Design</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--text-secondary);">
+              Merancang antarmuka yang intuitif dan estetis. Pengalaman pengguna selalu menjadi prioritas utama dalam setiap desain.
+            </p>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="feature-card transition p-6 rounded-2xl cursor-default" style="background: var(--bg-card); border: 1px solid var(--border);">
+            <div class="text-3xl mb-4" role="img" aria-label="Performance icon">⚡</div>
+            <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">Performance Optimization</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--text-secondary);">
+              Mengoptimalkan kecepatan loading dan performa runtime. Website yang cepat meningkatkan kepuasan pengguna secara signifikan.
+            </p>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="feature-card transition p-6 rounded-2xl cursor-default" style="background: var(--bg-card); border: 1px solid var(--border);">
+            <div class="text-3xl mb-4" role="img" aria-label="Mobile icon">📱</div>
+            <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">Responsive Design</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--text-secondary);">
+              Memastikan tampilan sempurna di semua ukuran layar, dari smartphone hingga monitor ultra-wide.
+            </p>
+          </div>
+
+          <!-- Card 5 -->
+          <div class="feature-card transition p-6 rounded-2xl cursor-default" style="background: var(--bg-card); border: 1px solid var(--border);">
+            <div class="text-3xl mb-4" role="img" aria-label="Security icon">🔒</div>
+            <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">Security Best Practices</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--text-secondary);">
+              Menerapkan praktik keamanan web terbaik untuk melindungi data pengguna dan integritas aplikasi.
+            </p>
+          </div>
+
+          <!-- Card 6 -->
+          <div class="feature-card transition p-6 rounded-2xl cursor-default" style="background: var(--bg-card); border: 1px solid var(--border);">
+            <div class="text-3xl mb-4" role="img" aria-label="Accessibility icon">♿</div>
+            <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">Accessibility (a11y)</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--text-secondary);">
+              Membangun website yang dapat diakses oleh semua orang, termasuk pengguna dengan disabilitas, sesuai standar WCAG.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PORTFOLIO ===== -->
+    <section id="portfolio" class="py-24 px-4" style="background: var(--bg-secondary);">
+      <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-12">
+          <p class="text-sm font-semibold uppercase tracking-widest mb-3" style="color: var(--accent);">My Work</p>
+          <h2 class="text-3xl sm:text-4xl font-bold mb-8" style="font-family: var(--font-display); color: var(--text-primary);">
+            Portfolio
+          </h2>
+
+          <!-- Filter buttons -->
+          <div class="flex flex-wrap justify-center gap-3">
+            <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition-colors active-filter"
+              data-filter="all"
+              style="background: var(--accent); color: #fff;">
+              Semua
+            </button>
+            <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition-colors"
+              data-filter="web"
+              style="background: var(--bg-card); color: var(--text-secondary); border: 1px solid var(--border);">
+              Web
+            </button>
+            <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition-colors"
+              data-filter="mobile"
+              style="background: var(--bg-card); color: var(--text-secondary); border: 1px solid var(--border);">
+              Mobile
+            </button>
+            <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition-colors"
+              data-filter="design"
+              style="background: var(--bg-card); color: var(--text-secondary); border: 1px solid var(--border);">
+              Design
+            </button>
+          </div>
+        </div>
+
+        <!-- Portfolio grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="portfolio-grid">
+
+          <!-- Item 1 -->
+          <div class="portfolio-item relative overflow-hidden rounded-2xl group cursor-pointer" data-category="web"
+            style="background: var(--bg-card); border: 1px solid var(--border); min-height: 220px;">
+            <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center"
+              style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+              <div class="text-5xl mb-3" role="img" aria-label="E-commerce website project">🛒</div>
+              <h3 class="font-semibold" style="color: var(--text-primary);">E-Commerce Platform</h3>
+              <p class="text-xs mt-1" style="color: var(--text-secondary);">Web</p>
+            </div>
+            <div class="portfolio-overlay absolute inset-0 flex flex-col items-center justify-center p-4 text-center rounded-2xl"
+              style="background: rgba(124, 106, 247, 0.92);">
+              <h3 class="font-bold text-white mb-2">E-Commerce Platform</h3>
+              <a href="#" aria-label="View E-Commerce Platform project"
+                class="inline-flex items-center gap-1 text-sm text-white underline underline-offset-2">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                Lihat Proyek
+              </a>
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="portfolio-item relative overflow-hidden rounded-2xl group cursor-pointer" data-category="mobile"
+            style="background: var(--bg-card); border: 1px solid var(--border); min-height: 220px;">
+            <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center"
+              style="background: linear-gradient(135deg, #0f3460 0%, #533483 100%);">
+              <div class="text-5xl mb-3" role="img" aria-label="Fitness tracker mobile app project">🏃</div>
+              <h3 class="font-semibold" style="color: var(--text-primary);">Fitness Tracker App</h3>
+              <p class="text-xs mt-1" style="color: var(--text-secondary);">Mobile</p>
+            </div>
+            <div class="portfolio-overlay absolute inset-0 flex flex-col items-center justify-center p-4 text-center rounded-2xl"
+              style="background: rgba(124, 106, 247, 0.92);">
+              <h3 class="font-bold text-white mb-2">Fitness Tracker App</h3>
+              <a href="#" aria-label="View Fitness Tracker App project"
+                class="inline-flex items-center gap-1 text-sm text-white underline underline-offset-2">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                Lihat Proyek
+              </a>
+            </div>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="portfolio-item relative overflow-hidden rounded-2xl group cursor-pointer" data-category="design"
+            style="background: var(--bg-card); border: 1px solid var(--border); min-height: 220px;">
+            <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center"
+              style="background: linear-gradient(135deg, #1a0533 0%, #3a0066 100%);">
+              <div class="text-5xl mb-3" role="img" aria-label="Brand identity design project">✏️</div>
+              <h3 class="font-semibold" style="color: var(--text-primary);">Brand Identity Design</h3>
+              <p class="text-xs mt-1" style="color: var(--text-secondary);">Design</p>
+            </div>
+            <div class="portfolio-overlay absolute inset-0 flex flex-col items-center justify-center p-4 text-center rounded-2xl"
+              style="background: rgba(124, 106, 247, 0.92);">
+              <h3 class="font-bold text-white mb-2">Brand Identity Design</h3>
+              <a href="#" aria-label="View Brand Identity Design project"
+                class="inline-flex items-center gap-1 text-sm text-white underline underline-offset-2">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                Lihat Proyek
+              </a>
+            </div>
+          </div>
+
+          <!-- Item 4 -->
+          <div class="portfolio-item relative overflow-hidden rounded-2xl group cursor-pointer" data-category="web"
+            style="background: var(--bg-card); border: 1px solid var(--border); min-height: 220px;">
+            <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center"
+              style="background: linear-gradient(135deg, #003333 0%, #006633 100%);">
+              <div class="text-5xl mb-3" role="img" aria-label="Blog platform web project">📝</div>
+              <h3 class="font-semibold" style="color: var(--text-primary);">Blog Platform</h3>
+              <p class="text-xs mt-1" style="color: var(--text-secondary);">Web</p>
+            </div>
+            <div class="portfolio-overlay absolute inset-0 flex flex-col items-center justify-center p-4 text-center rounded-2xl"
+              style="background: rgba(124, 106, 247, 0.92);">
+              <h3 class="font-bold text-white mb-2">Blog Platform</h3>
+              <a href="#" aria-label="View Blog Platform project"
+                class="inline-flex items-center gap-1 text-sm text-white underline underline-offset-2">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                Lihat Proyek
+              </a>
+            </div>
+          </div>
+
+          <!-- Item 5 -->
+          <div class="portfolio-item relative overflow-hidden rounded-2xl group cursor-pointer" data-category="mobile"
+            style="background: var(--bg-card); border: 1px solid var(--border); min-height: 220px;">
+            <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center"
+              style="background: linear-gradient(135deg, #1a2a0a 0%, #3a5a20 100%);">
+              <div class="text-5xl mb-3" role="img" aria-label="Food delivery mobile app project">🍔</div>
+              <h3 class="font-semibold" style="color: var(--text-primary);">Food Delivery App</h3>
+              <p class="text-xs mt-1" style="color: var(--text-secondary);">Mobile</p>
+            </div>
+            <div class="portfolio-overlay absolute inset-0 flex flex-col items-center justify-center p-4 text-center rounded-2xl"
+              style="background: rgba(124, 106, 247, 0.92);">
+              <h3 class="font-bold text-white mb-2">Food Delivery App</h3>
+              <a href="#" aria-label="View Food Delivery App project"
+                class="inline-flex items-center gap-1 text-sm text-white underline underline-offset-2">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                Lihat Proyek
+              </a>
+            </div>
+          </div>
+
+          <!-- Item 6 -->
+          <div class="portfolio-item relative overflow-hidden rounded-2xl group cursor-pointer" data-category="design"
+            style="background: var(--bg-card); border: 1px solid var(--border); min-height: 220px;">
+            <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center"
+              style="background: linear-gradient(135deg, #2a0a0a 0%, #5a1020 100%);">
+              <div class="text-5xl mb-3" role="img" aria-label="Dashboard UI design project">📊</div>
+              <h3 class="font-semibold" style="color: var(--text-primary);">Dashboard UI Design</h3>
+              <p class="text-xs mt-1" style="color: var(--text-secondary);">Design</p>
+            </div>
+            <div class="portfolio-overlay absolute inset-0 flex flex-col items-center justify-center p-4 text-center rounded-2xl"
+              style="background: rgba(124, 106, 247, 0.92);">
+              <h3 class="font-bold text-white mb-2">Dashboard UI Design</h3>
+              <a href="#" aria-label="View Dashboard UI Design project"
+                class="inline-flex items-center gap-1 text-sm text-white underline underline-offset-2">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                Lihat Proyek
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TESTIMONIALS ===== -->
+    <section id="testimonials" class="py-24 px-4 overflow-hidden" style="background: var(--bg-primary);">
+      <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-12">
+          <p class="text-sm font-semibold uppercase tracking-widest mb-3" style="color: var(--accent);">Testimonials</p>
+          <h2 class="text-3xl sm:text-4xl font-bold" style="font-family: var(--font-display); color: var(--text-primary);">
+            Kata Mereka
+          </h2>
+        </div>
+
+        <!-- Carousel wrapper -->
+        <div class="relative">
+          <div id="testimonial-viewport" class="overflow-hidden rounded-2xl">
+            <div class="testimonial-track" id="testimonial-track">
+
+              <!-- Slide 1 -->
+              <div class="testimonial-slide px-2">
+                <div class="p-8 rounded-2xl" style="background: var(--bg-card); border: 1px solid var(--border);">
+                  <p class="text-lg italic mb-6 leading-relaxed" style="color: var(--text-primary);">
+                    "Hasilnya melampaui ekspektasi kami. Website yang dibangun sangat cepat, responsif, dan
+                    pengalaman penggunanya luar biasa. Tim kami sangat puas!"
+                  </p>
+                  <div class="flex items-center gap-4">
+                    <img src="https://ui-avatars.com/api/?name=Budi+Santoso&background=7c6af7&color=fff&size=48"
+                      alt="Foto profil Budi Santoso, CEO StartupXYZ"
+                      class="w-12 h-12 rounded-full object-cover" />
+                    <div>
+                      <p class="font-semibold" style="color: var(--text-primary);">Budi Santoso</p>
+                      <p class="text-sm" style="color: var(--text-secondary);">CEO, StartupXYZ</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Slide 2 -->
+              <div class="testimonial-slide px-2">
+                <div class="p-8 rounded-2xl" style="background: var(--bg-card); border: 1px solid var(--border);">
+                  <p class="text-lg italic mb-6 leading-relaxed" style="color: var(--text-primary);">
+                    "Profesional, tepat waktu, dan detail. Cursor Spotlight Effect yang ditambahkan membuat
+                    website kami terasa premium dan berbeda dari kompetitor."
+                  </p>
+                  <div class="flex items-center gap-4">
+                    <img src="https://ui-avatars.com/api/?name=Siti+Rahayu&background=6b58f0&color=fff&size=48"
+                      alt="Foto profil Siti Rahayu, Marketing Director TechCorp"
+                      class="w-12 h-12 rounded-full object-cover" />
+                    <div>
+                      <p class="font-semibold" style="color: var(--text-primary);">Siti Rahayu</p>
+                      <p class="text-sm" style="color: var(--text-secondary);">Marketing Director, TechCorp</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Slide 3 -->
+              <div class="testimonial-slide px-2">
+                <div class="p-8 rounded-2xl" style="background: var(--bg-card); border: 1px solid var(--border);">
+                  <p class="text-lg italic mb-6 leading-relaxed" style="color: var(--text-primary);">
+                    "Kode yang ditulis sangat bersih dan mudah di-maintain. Dokumentasinya lengkap dan
+                    komunikasinya sangat baik selama proses pengerjaan."
+                  </p>
+                  <div class="flex items-center gap-4">
+                    <img src="https://ui-avatars.com/api/?name=Andi+Wijaya&background=5b4de0&color=fff&size=48"
+                      alt="Foto profil Andi Wijaya, CTO InnovateCo"
+                      class="w-12 h-12 rounded-full object-cover" />
+                    <div>
+                      <p class="font-semibold" style="color: var(--text-primary);">Andi Wijaya</p>
+                      <p class="text-sm" style="color: var(--text-secondary);">CTO, InnovateCo</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Carousel navigation -->
+          <div class="flex items-center justify-center gap-6 mt-8" id="carousel-controls">
+            <button id="carousel-prev" aria-label="Testimoni sebelumnya"
+              class="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+              style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary);">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            <!-- Dots indicators -->
+            <div class="flex gap-2" id="carousel-dots">
+              <button class="carousel-dot w-2 h-2 rounded-full transition-all" data-index="0"
+                aria-label="Slide 1" style="background: var(--accent);"></button>
+              <button class="carousel-dot w-2 h-2 rounded-full transition-all" data-index="1"
+                aria-label="Slide 2" style="background: var(--border);"></button>
+              <button class="carousel-dot w-2 h-2 rounded-full transition-all" data-index="2"
+                aria-label="Slide 3" style="background: var(--border);"></button>
+            </div>
+
+            <button id="carousel-next" aria-label="Testimoni berikutnya"
+              class="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+              style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary);">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CONTACT ===== -->
+    <section id="contact" class="py-24 px-4" style="background: var(--bg-secondary);">
+      <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-12">
+          <p class="text-sm font-semibold uppercase tracking-widest mb-3" style="color: var(--accent);">Get In Touch</p>
+          <h2 class="text-3xl sm:text-4xl font-bold" style="font-family: var(--font-display); color: var(--text-primary);">
+            Hubungi Saya
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+
+          <!-- Contact form -->
+          <form id="contact-form" novalidate class="space-y-5">
+
+            <!-- Name -->
+            <div>
+              <label for="field-name" class="block text-sm font-medium mb-1.5" style="color: var(--text-primary);">
+                Nama Lengkap <span aria-hidden="true" style="color: var(--accent);">*</span>
+              </label>
+              <input id="field-name" name="name" type="text" autocomplete="name"
+                placeholder="Nama Anda"
+                class="w-full px-4 py-3 rounded-lg text-sm outline-none transition-colors"
+                style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary);"
+                aria-required="true" aria-describedby="error-name" />
+              <p id="error-name" class="text-xs mt-1.5 hidden" style="color: #ef4444;" role="alert"></p>
+            </div>
+
+            <!-- Email -->
+            <div>
+              <label for="field-email" class="block text-sm font-medium mb-1.5" style="color: var(--text-primary);">
+                Alamat Email <span aria-hidden="true" style="color: var(--accent);">*</span>
+              </label>
+              <input id="field-email" name="email" type="email" autocomplete="email"
+                placeholder="email@contoh.com"
+                class="w-full px-4 py-3 rounded-lg text-sm outline-none transition-colors"
+                style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary);"
+                aria-required="true" aria-describedby="error-email" />
+              <p id="error-email" class="text-xs mt-1.5 hidden" style="color: #ef4444;" role="alert"></p>
+            </div>
+
+            <!-- Subject -->
+            <div>
+              <label for="field-subject" class="block text-sm font-medium mb-1.5" style="color: var(--text-primary);">
+                Subjek <span aria-hidden="true" style="color: var(--accent);">*</span>
+              </label>
+              <input id="field-subject" name="subject" type="text"
+                placeholder="Perihal pesan Anda"
+                class="w-full px-4 py-3 rounded-lg text-sm outline-none transition-colors"
+                style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary);"
+                aria-required="true" aria-describedby="error-subject" />
+              <p id="error-subject" class="text-xs mt-1.5 hidden" style="color: #ef4444;" role="alert"></p>
+            </div>
+
+            <!-- Message -->
+            <div>
+              <label for="field-message" class="block text-sm font-medium mb-1.5" style="color: var(--text-primary);">
+                Pesan <span aria-hidden="true" style="color: var(--accent);">*</span>
+              </label>
+              <textarea id="field-message" name="message" rows="5"
+                placeholder="Tulis pesan Anda di sini..."
+                class="w-full px-4 py-3 rounded-lg text-sm outline-none transition-colors resize-none"
+                style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary);"
+                aria-required="true" aria-describedby="error-message"></textarea>
+              <p id="error-message" class="text-xs mt-1.5 hidden" style="color: #ef4444;" role="alert"></p>
+            </div>
+
+            <button type="submit"
+              class="w-full py-3 rounded-lg font-semibold text-white transition-colors"
+              style="background: var(--accent);">
+              Kirim Pesan
+            </button>
+
+          </form>
+
+          <!-- Contact info -->
+          <div class="space-y-6">
+            <h3 class="text-xl font-semibold" style="color: var(--text-primary);">Informasi Kontak</h3>
+
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                style="background: var(--bg-card); border: 1px solid var(--border);">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color: var(--accent);">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium mb-0.5" style="color: var(--text-primary);">Email</p>
+                <a href="mailto:hello@creative.dev" class="text-sm" style="color: var(--accent);">hello@creative.dev</a>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                style="background: var(--bg-card); border: 1px solid var(--border);">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color: var(--accent);">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium mb-0.5" style="color: var(--text-primary);">Telepon</p>
+                <a href="tel:+6281234567890" class="text-sm" style="color: var(--accent);">+62 812 3456 7890</a>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                style="background: var(--bg-card); border: 1px solid var(--border);">
+                <!-- GitHub icon -->
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" style="color: var(--accent);">
+                  <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.087.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium mb-0.5" style="color: var(--text-primary);">GitHub</p>
+                <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-sm" style="color: var(--accent);">github.com/creative</a>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                style="background: var(--bg-card); border: 1px solid var(--border);">
+                <!-- LinkedIn icon -->
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" style="color: var(--accent);">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium mb-0.5" style="color: var(--text-primary);">LinkedIn</p>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="text-sm" style="color: var(--accent);">linkedin.com/in/creative</a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="py-10 px-4" style="background: var(--bg-primary); border-top: 1px solid var(--border);">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+
+        <!-- Brand -->
+        <a href="#hero" class="font-bold text-lg" style="font-family: var(--font-display); color: var(--text-primary);">
+          Creative<span style="color: var(--accent);">.</span>
+        </a>
+
+        <!-- Footer nav -->
+        <nav aria-label="Footer navigation">
+          <ul class="flex flex-wrap gap-x-6 gap-y-2 text-sm" style="color: var(--text-secondary);">
+            <li><a href="#hero"         data-scroll-to="#hero"         class="hover:opacity-100 transition-opacity" style="opacity:0.7;">Home</a></li>
+            <li><a href="#about"        data-scroll-to="#about"        class="hover:opacity-100 transition-opacity" style="opacity:0.7;">About</a></li>
+            <li><a href="#features"     data-scroll-to="#features"     class="hover:opacity-100 transition-opacity" style="opacity:0.7;">Features</a></li>
+            <li><a href="#portfolio"    data-scroll-to="#portfolio"    class="hover:opacity-100 transition-opacity" style="opacity:0.7;">Portfolio</a></li>
+            <li><a href="#testimonials" data-scroll-to="#testimonials" class="hover:opacity-100 transition-opacity" style="opacity:0.7;">Testimonials</a></li>
+            <li><a href="#contact"      data-scroll-to="#contact"      class="hover:opacity-100 transition-opacity" style="opacity:0.7;">Contact</a></li>
+          </ul>
+        </nav>
+
+        <!-- Copyright -->
+        <p class="text-sm" style="color: var(--text-secondary);">
+          &copy; <span id="footer-year"></span> Creative. All rights reserved.
+        </p>
+
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scroll to Top Button -->
+  <button id="scroll-top-btn" aria-label="Kembali ke atas halaman">
+    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+    </svg>
+  </button>
+
+  <!-- App Script -->
+  <script src="app.js"></script>
+
+</body>
+</html>
